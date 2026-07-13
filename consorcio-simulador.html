@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Consórcio Porto | Parcer Seguros</title>
+<meta name="description" content="Simule seu consórcio Porto gratuitamente. Escolha imóvel, carro ou caminhão, ajuste o crédito e veja sua parcela estimada sem juros. Grupos disponíveis em julho/2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde-petroleo: #214247;
+    --verde-profundo: #132728;
+    --cinza-claro: #DBDBD1;
+    --cinza: #9E9D8F;
+    --azul-claro: #76ACC1;
+    --branco: #FFFFFF;
+    --ink: #132728;
+    --bg-page: #F4F5F1;
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+    --shadow-soft: 0 20px 60px -20px rgba(19,39,40,0.25);
+    --shadow-card: 0 12px 40px -18px rgba(19,39,40,0.18);
+    --ease: cubic-bezier(.16,.8,.24,1);
+    --verde-porto: #214247;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--branco);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Sora', sans-serif;
+    color: var(--verde-profundo);
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* HEADER */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 12px 0;
+    transition: background .4s var(--ease), box-shadow .4s var(--ease);
+  }
+  header.scrolled {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 30px -20px rgba(19,39,40,0.3);
+    padding: 8px 0;
+  }
+  .nav-wrap { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 22px; color: var(--verde-profundo); }
+  .logo span { color: var(--azul-claro); }
+  .nav-links { display: flex; align-items: center; gap: 28px; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--verde-petroleo); opacity: 0.8; transition: opacity .2s; }
+  .nav-links a:hover { opacity: 1; }
+  .btn-nav {
+    background: var(--verde-petroleo); color: #fff;
+    padding: 10px 22px; border-radius: 100px;
+    font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+    transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  .btn-nav:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -8px rgba(19,39,40,0.4); }
+
+  /* HERO */
+  .hero {
+    padding: 120px 0 64px;
+    background: linear-gradient(160deg, #F4F5F1 0%, var(--branco) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(118,172,193,0.2), transparent 70%);
+    top: -150px; right: -100px;
+    border-radius: 50%;
+  }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--cinza); margin-bottom: 20px;
+  }
+  .breadcrumb a { color: var(--azul-claro); font-weight: 500; }
+  .breadcrumb span { opacity: 0.5; }
+  .hero-inner { max-width: 680px; position: relative; z-index: 1; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--azul-claro); margin-bottom: 16px;
+  }
+  .eyebrow::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--azul-claro); border-radius: 50%;
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
+  }
+  .hero h1 { font-size: clamp(32px, 4vw, 52px); font-weight: 800; margin-bottom: 16px; }
+  .hero h1 .accent { color: var(--azul-claro); }
+  .hero .sub {
+    font-size: clamp(16px, 1.4vw, 18px); color: var(--verde-petroleo);
+    opacity: 0.82; margin-bottom: 28px; max-width: 540px;
+  }
+  .hero-checks { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 0; }
+  .hc { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--verde-petroleo); font-weight: 500; }
+  .hc::before { content: '✓'; color: var(--azul-claro); font-weight: 700; }
+
+  /* SIMULADOR */
+  .sim-section { padding: 0 0 80px; background: var(--branco); }
+  .sim-card {
+    background: var(--branco);
+    border: 1px solid rgba(33,66,71,0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+    margin-top: -20px;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ABAS DE BEM */
+  .bem-tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid rgba(33,66,71,0.08);
+  }
+  .bem-tab {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    padding: 24px 16px; cursor: pointer;
+    border: none; background: none;
+    font-family: 'Inter', sans-serif;
+    color: var(--cinza); font-size: 14px; font-weight: 500;
+    transition: all .25s var(--ease);
+    position: relative;
+    border-bottom: 3px solid transparent;
+  }
+  .bem-tab .tab-icon { font-size: 28px; }
+  .bem-tab:hover { color: var(--verde-petroleo); background: rgba(33,66,71,0.02); }
+  .bem-tab.active {
+    color: var(--verde-profundo); font-weight: 600;
+    border-bottom-color: var(--azul-claro);
+    background: rgba(118,172,193,0.04);
+  }
+
+  /* CORPO DO SIMULADOR */
+  .sim-body { padding: 36px 40px 40px; }
+
+  .sim-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+
+  /* CONTROLES */
+  .controls-col {}
+  .control-group { margin-bottom: 32px; }
+  .control-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--cinza);
+    margin-bottom: 14px; display: block;
+  }
+
+  /* CHIPS DE CRÉDITO */
+  .credit-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .credit-chip {
+    padding: 10px 18px; border-radius: 100px;
+    border: 1.5px solid rgba(33,66,71,0.15);
+    background: transparent; cursor: pointer;
+    font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600;
+    color: var(--verde-petroleo);
+    transition: all .2s var(--ease);
+  }
+  .credit-chip:hover { border-color: var(--azul-claro); color: var(--azul-claro); }
+  .credit-chip.active {
+    background: var(--verde-profundo); color: #fff;
+    border-color: var(--verde-profundo);
+    box-shadow: 0 8px 20px -8px rgba(19,39,40,0.4);
+  }
+
+  /* SLIDER DE PRAZO */
+  .prazo-display {
+    display: flex; align-items: baseline; gap: 6px; margin-bottom: 16px;
+  }
+  .prazo-num {
+    font-family: 'Sora', sans-serif; font-size: 36px; font-weight: 800;
+    color: var(--verde-profundo);
+  }
+  .prazo-unit { font-size: 16px; color: var(--cinza); font-weight: 500; }
+
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none;
+    height: 6px; border-radius: 3px;
+    background: var(--cinza-claro); outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--verde-profundo);
+    box-shadow: 0 4px 12px -4px rgba(19,39,40,0.4);
+    transition: transform .2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  .prazo-limits { display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--cinza); }
+
+  /* RESULTADO */
+  .result-col {
+    background: linear-gradient(160deg, var(--verde-petroleo) 0%, var(--verde-profundo) 100%);
+    border-radius: var(--radius-md);
+    padding: 32px 28px;
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+  }
+  .result-col::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 10%, rgba(118,172,193,0.25), transparent 60%);
+    pointer-events: none;
+  }
+  .result-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.55); margin-bottom: 6px;
+    position: relative; z-index: 1;
+  }
+  .result-main {
+    margin-bottom: 24px; position: relative; z-index: 1;
+  }
+  .result-parcela-label { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+  .result-value {
+    font-family: 'Sora', sans-serif; font-size: clamp(32px, 3.5vw, 44px); font-weight: 800;
+    color: #fff; line-height: 1;
+  }
+  .result-value.loading { opacity: 0.4; animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+  .result-sub { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 6px; }
+
+  .result-divider { height: 1px; background: rgba(255,255,255,0.12); margin: 20px 0; position: relative; z-index: 1; }
+
+  .result-details { position: relative; z-index: 1; }
+  .result-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .result-row-label { font-size: 13px; color: rgba(255,255,255,0.65); }
+  .result-row-val { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); }
+  .result-row-val.highlight { color: var(--azul-claro); }
+
+  .compare-box {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 16px;
+    margin-top: 20px; position: relative; z-index: 1;
+  }
+  .compare-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
+  .compare-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .compare-row:last-child { margin-bottom: 0; }
+  .compare-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px;
+    display: inline-block;
+  }
+  .tag-consorcio { background: rgba(118,172,193,0.2); color: var(--azul-claro); }
+  .tag-financ { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); }
+  .compare-val { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+  .compare-val.danger { color: #f87171; }
+
+  /* GRUPO INFO */
+  .grupo-info {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 14px 16px;
+    margin-top: 16px; position: relative; z-index: 1;
+    font-size: 12px; color: rgba(255,255,255,0.55);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .grupo-info svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+  .grupo-info strong { color: rgba(255,255,255,0.8); }
+
+  /* CTAS */
+  .sim-ctas { margin-top: 36px; position: relative; z-index: 1; }
+  .btn-wa {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 16px;
+    background: #25D366; color: #fff;
+    border: none; border-radius: 100px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
+    transition: transform .25s var(--ease), box-shadow .25s;
+    margin-bottom: 12px; text-decoration: none;
+  }
+  .btn-wa:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -8px rgba(37,211,102,0.5); }
+  .btn-form {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 14px;
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9);
+    border: 1.5px solid rgba(255,255,255,0.2); border-radius: 100px; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    transition: all .25s var(--ease); text-decoration: none;
+  }
+  .btn-form:hover { background: rgba(255,255,255,0.18); }
+
+  /* DISCLAIMER */
+  .sim-disclaimer {
+    margin-top: 28px; padding: 0 40px;
+    font-size: 12px; color: var(--cinza); line-height: 1.7;
+    border-top: 1px solid rgba(33,66,71,0.07); padding-top: 20px;
+  }
+
+  /* COMO FUNCIONA */
+  .section { padding: 80px 0; }
+  .section-header { text-align: center; margin-bottom: 52px; }
+  .section-title { font-size: clamp(26px, 3vw, 40px); font-weight: 700; margin-bottom: 12px; }
+  .section-sub { font-size: 17px; color: var(--verde-petroleo); opacity: 0.75; max-width: 500px; margin: 0 auto; }
+
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .how-card {
+    background: var(--bg-page); border-radius: var(--radius-md); padding: 28px 24px;
+    border: 1px solid rgba(33,66,71,0.07);
+  }
+  .how-num {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--verde-petroleo); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-weight: 800; font-size: 20px;
+    margin-bottom: 18px;
+  }
+  .how-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .how-card p { font-size: 14px; color: var(--verde-petroleo); opacity: 0.78; line-height: 1.6; }
+
+  /* FAQ */
+  .bg-soft { background: var(--bg-page); }
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid rgba(33,66,71,0.1); padding: 20px 0;
+  }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; gap: 16px;
+    font-size: 16px; font-weight: 600; color: var(--verde-profundo);
+  }
+  .faq-q svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--azul-claro); transition: transform .3s; }
+  .faq-item.open .faq-q svg { transform: rotate(45deg); }
+  .faq-a { font-size: 15px; color: var(--verde-petroleo); opacity: 0.82; line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height .4s var(--ease), padding .3s; }
+  .faq-item.open .faq-a { max-height: 300px; padding-top: 14px; }
+
+  /* CTA FINAL */
+  .cta-final {
+    background: linear-gradient(160deg, var(--azul-claro), var(--verde-petroleo) 55%, var(--verde-profundo));
+    border-radius: var(--radius-lg); margin: 0 24px 24px;
+    padding: 64px 32px; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-final::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 25%, rgba(255,255,255,0.18), transparent 55%);
+  }
+  .cta-final h2 { color: #fff; font-size: clamp(24px, 3vw, 40px); max-width: 600px; margin: 0 auto 14px; position: relative; z-index: 1; }
+  .cta-final p { color: rgba(255,255,255,0.78); max-width: 460px; margin: 0 auto 40px; font-size: 17px; position: relative; z-index: 1; }
+  .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .btn-white {
+    background: #fff; color: var(--verde-profundo);
+    padding: 16px 32px; border-radius: 100px;
+    font-weight: 700; font-size: 15px; font-family: 'Inter', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform .25s var(--ease), box-shadow .25s;
+    box-shadow: 0 12px 28px -10px rgba(19,39,40,0.3);
+    text-decoration: none;
+  }
+  .btn-white:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -12px rgba(19,39,40,0.4); }
+  .btn-outline-white {
+    background: transparent; color: #fff;
+    border: 1.5px solid rgba(255,255,255,0.4); padding: 16px 32px; border-radius: 100px;
+    font-weight: 600; font-size: 15px; font-family: 'Inter', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all .25s var(--ease); text-decoration: none;
+  }
+  .btn-outline-white:hover { background: rgba(255,255,255,0.1); }
+
+  /* FOOTER */
+  footer { padding: 40px 24px 28px; background: #FAFAF7; }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+    border-top: 1px solid rgba(33,66,71,0.1); padding-top: 28px; text-align: center;
+  }
+  .footer-copy { font-size: 13px; color: var(--cinza); }
+
+  /* WA FLOAT */
+  .wa-float {
+    position: fixed; bottom: 22px; right: 22px; z-index: 150;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #25D366; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 30px -8px rgba(37,211,102,0.55);
+    transition: transform .3s var(--ease);
+    animation: waPulse 2.4s ease-in-out infinite;
+  }
+  .wa-float:hover { transform: scale(1.08); }
+  @keyframes waPulse {
+    0%, 100% { box-shadow: 0 10px 30px -8px rgba(37,211,102,0.55), 0 0 0 0 rgba(37,211,102,0.4); }
+    50% { box-shadow: 0 10px 30px -8px rgba(37,211,102,0.55), 0 0 0 12px rgba(37,211,102,0); }
+  }
+
+  /* REVEAL */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-d1.visible { transition-delay: .08s; }
+  .reveal-d2.visible { transition-delay: .16s; }
+  .reveal-d3.visible { transition-delay: .24s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 860px) {
+    .sim-cols { grid-template-columns: 1fr; gap: 28px; }
+    .bem-tabs { grid-template-columns: repeat(2, 1fr); }
+    .sim-body { padding: 24px 20px; }
+    .how-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .cta-final { margin: 0 12px 80px; padding: 48px 20px; }
+  }
+  @media (max-width: 480px) {
+    .bem-tabs { grid-template-columns: repeat(2, 1fr); }
+    .credit-chips { gap: 8px; }
+    .credit-chip { font-size: 14px; padding: 9px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="siteHeader">
+  <div class="container nav-wrap">
+    <a href="index.html" class="logo">Parcer <span>Seguros</span></a>
+    <div class="nav-links">
+      <a href="index.html">Início</a>
+      <a href="cotar-auto.html">Seguro Auto</a>
+      <a href="cotar-vida.html">Seguro de Vida</a>
+      <a href="#simulador" style="color:var(--azul-claro);font-weight:600;">Consórcio</a>
+    </div>
+    <a href="https://wa.me/556131426161?text=Olá!%20Quero%20mais%20informações%20sobre%20consórcio." target="_blank" class="btn-nav">Falar com consultor</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Início</a>
+      <span>›</span>
+      <span>Consórcio</span>
+      <span>›</span>
+      <span>Simulador</span>
+    </div>
+    <div class="hero-inner">
+      <div class="eyebrow">Simulação grátis · Grupos Porto Julho/2026</div>
+      <h1>Simule seu consórcio<br>e veja sua <span class="accent">parcela sem juros</span></h1>
+      <p class="sub">Escolha o bem, o valor do crédito e o prazo. Veja o quanto você paga por mês — e compare com o custo do financiamento.</p>
+      <div class="hero-checks">
+        <div class="hc">Regulado pelo Banco Central</div>
+        <div class="hc">Grupos Porto disponíveis</div>
+        <div class="hc">Sem compromisso</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIMULADOR -->
+<section class="sim-section" id="simulador">
+  <div class="container">
+    <div class="sim-card">
+
+      <!-- ABAS DE BEM -->
+      <div class="bem-tabs" role="tablist">
+        <button class="bem-tab active" data-tipo="IMV" onclick="selectTipo('IMV', this)" role="tab">
+          <span class="tab-icon">🏠</span>
+          Imóvel
+        </button>
+        <button class="bem-tab" data-tipo="AUT" onclick="selectTipo('AUT', this)" role="tab">
+          <span class="tab-icon">🚗</span>
+          Automóvel
+        </button>
+        <button class="bem-tab" data-tipo="MOTO" onclick="selectTipo('MOTO', this)" role="tab">
+          <span class="tab-icon">🏍️</span>
+          Moto
+        </button>
+        <button class="bem-tab" data-tipo="PES" onclick="selectTipo('PES', this)" role="tab">
+          <span class="tab-icon">🚛</span>
+          Caminhão
+        </button>
+      </div>
+
+      <!-- CORPO -->
+      <div class="sim-body">
+        <div class="sim-cols">
+
+          <!-- CONTROLES -->
+          <div class="controls-col">
+            <div class="control-group">
+              <span class="control-label">Valor do crédito</span>
+              <div class="credit-chips" id="creditChips"></div>
+            </div>
+            <div class="control-group">
+              <span class="control-label">Prazo</span>
+              <div class="prazo-display">
+                <span class="prazo-num" id="prazoDisplay">80</span>
+                <span class="prazo-unit">meses</span>
+              </div>
+              <input type="range" id="prazoSlider" min="50" max="240" step="1" value="80" oninput="onPrazoChange(this.value)">
+              <div class="prazo-limits"><span id="prazoMin">50 meses</span><span id="prazoMax">240 meses</span></div>
+            </div>
+
+            <!-- INFO DO GRUPO ENCONTRADO -->
+            <div class="grupo-info" id="grupoInfo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="grupoInfoText">Selecione um valor de crédito para ver os grupos disponíveis.</span>
+            </div>
+          </div>
+
+          <!-- RESULTADO -->
+          <div class="result-col">
+            <div class="result-label">Consórcio Porto · Parcer</div>
+
+            <div class="result-main">
+              <div class="result-parcela-label">Parcela estimada / mês</div>
+              <div class="result-value" id="resultParcela">—</div>
+              <div class="result-sub" id="resultSub">Selecione crédito e prazo</div>
+            </div>
+
+            <div class="result-divider"></div>
+
+            <div class="result-details">
+              <div class="result-row">
+                <span class="result-row-label">Crédito contratado</span>
+                <span class="result-row-val" id="rdCredito">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row-label">Custo total (consórcio)</span>
+                <span class="result-row-val highlight" id="rdCustoTotal">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row-label">Taxa de administração</span>
+                <span class="result-row-val" id="rdTaxa">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row-label">Lance embutido disponível</span>
+                <span class="result-row-val" id="rdLance">—</span>
+              </div>
+            </div>
+
+            <div class="compare-box" id="compareBox" style="display:none;">
+              <div class="compare-title">📊 Consórcio vs Financiamento</div>
+              <div class="compare-row">
+                <span><span class="compare-tag tag-consorcio">Consórcio</span></span>
+                <span class="compare-val" id="cmpConsorcio">—</span>
+              </div>
+              <div class="compare-row">
+                <span><span class="compare-tag tag-financ">Financiamento</span></span>
+                <span class="compare-val danger" id="cmpFinanc">—</span>
+              </div>
+              <div class="compare-row" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.1);">
+                <span style="font-size:12px;color:rgba(255,255,255,0.5);">Você economiza</span>
+                <span class="compare-val" style="color:#4ade80;" id="cmpEconomia">—</span>
+              </div>
+            </div>
+
+            <div class="sim-ctas">
+              <a href="#" id="btnWa" class="btn-wa" target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor"><path d="M16 3C9.372 3 4 8.372 4 15c0 2.386.703 4.605 1.906 6.469L4 29l7.719-1.844A11.9 11.9 0 0016 27c6.628 0 12-5.372 12-12S22.628 3 16 3zm0 21.813c-1.826 0-3.554-.5-5.031-1.375l-.36-.219-4.593 1.094 1.093-4.469-.234-.375A9.756 9.756 0 016.187 15c0-5.404 4.407-9.812 9.813-9.812s9.813 4.408 9.813 9.812c0 5.406-4.406 9.813-9.813 9.813zm5.406-7.375c-.281-.14-1.75-.86-2.031-.968-.281-.11-.469-.14-.688.14-.219.281-.797.968-.969 1.156-.187.187-.359.219-.64.078-.281-.14-1.234-.453-2.36-1.437-.874-.766-1.469-1.735-1.64-2.016-.172-.281 0-.437.125-.578.125-.125.281-.328.422-.5.14-.172.187-.281.281-.469.094-.187.047-.359-.031-.5-.078-.14-.688-1.594-.938-2.156-.234-.578-.484-.5-.688-.516-.187-.015-.375-.015-.578-.015a1.1 1.1 0 00-.813.375c-.281.281-1.078 1.062-1.078 2.593 0 1.532 1.11 3 1.266 3.219.156.219 2.171 3.406 5.437 4.75.766.328 1.36.531 1.828.671.766.243 1.469.219 2.032.14.62-.093 1.75-.718 2-1.406.25-.688.25-1.281.171-1.406-.078-.11-.281-.187-.562-.328z"/></svg>
+                Receber proposta no WhatsApp
+              </a>
+              <a href="cotar-consorcio.html" class="btn-form">
+                Preencher formulário de cotação
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /sim-body -->
+
+      <div class="sim-disclaimer">
+        Simulação estimativa com base nos grupos Porto disponíveis em julho/2026 e nas taxas médias de administração praticadas (imóvel: 17,5%–23% · automóvel: 15%–18% · caminhão: 14%). A parcela real pode variar conforme grupo, fundo de reserva e seguro de vida. A contemplação ocorre por sorteio ou lance — ao final do grupo, todos os participantes são contemplados. Comparativo de financiamento usa taxa média de mercado (14–18% a.a.) para fins ilustrativos. Corretora credenciada Porto · Regulada pela SUSEP.
+      </div>
+
+    </div><!-- /sim-card -->
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="section reveal">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow" style="justify-content:center;">Como funciona</div>
+      <h2 class="section-title">Consórcio sem complicação</h2>
+      <p class="section-sub">Do simulador à contemplação, a Parcer cuida de tudo por você.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-card reveal reveal-d1">
+        <div class="how-num">1</div>
+        <h3>Simule e escolha o crédito</h3>
+        <p>Use o simulador acima para encontrar o valor e prazo que cabem no seu orçamento. Sem cadastro, sem compromisso.</p>
+      </div>
+      <div class="how-card reveal reveal-d2">
+        <div class="how-num">2</div>
+        <h3>Fale com um consultor</h3>
+        <p>Nosso consultor explica os grupos disponíveis, as formas de lance e a melhor estratégia para você ser contemplado mais rápido.</p>
+      </div>
+      <div class="how-card reveal reveal-d3">
+        <div class="how-num">3</div>
+        <h3>Contrate e aguarde a contemplação</h3>
+        <p>Assine digitalmente, comece a pagar as parcelas e concorra por sorteio ou lance todo mês. A Parcer te acompanha até a entrega do crédito.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section bg-soft reveal">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow" style="justify-content:center;">Dúvidas frequentes</div>
+      <h2 class="section-title">Perguntas sobre consórcio</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          O consórcio tem juros?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="faq-a">Não. O consórcio não tem juros. Você paga a taxa de administração da Porto (diluída no prazo), um pequeno fundo de reserva e o seguro de vida. No total, o acréscimo costuma ficar entre 15% e 23% do valor do crédito — muito abaixo dos juros de um financiamento, que podem dobrar o valor do bem.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Quando serei contemplado?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="faq-a">A contemplação acontece todo mês por sorteio ou por lance. Com o lance embutido da Porto, você usa parte do próprio crédito como lance — sem tirar dinheiro do bolso. Quem quiser acelerar pode dar lance livre (dinheiro próprio). Ao final do grupo, todos os participantes são contemplados.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          O que é o lance embutido?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="faq-a">O lance embutido é uma modalidade da Porto em que você usa de 15% a 30% do próprio crédito como lance para tentar ser contemplado mais cedo. Se ganhar, o crédito que recebe é o total menos o lance dado. É uma forma de antecipar a contemplação sem precisar ter dinheiro guardado.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Posso usar o crédito para qualquer imóvel ou carro?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="faq-a">Sim, com algumas condições. Para imóvel, você pode comprar terreno, casa, apartamento ou usar para construção e reforma. Para automóvel, qualquer veículo leve nacional ou importado. O bem precisa ser avaliado e aprovado pela Porto no momento da contemplação.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          O que acontece se eu não puder pagar uma parcela?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="faq-a">Atrasos geram multa e juros moratórios. Se as parcelas ficarem muito em atraso, você pode ser excluído do grupo e receber os valores pagos de volta ao final do grupo (com correção). A Parcer orienta e acompanha em caso de dificuldades para encontrar a melhor solução.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="cta-final reveal">
+  <h2>Pronto para comprar sem pagar juros?</h2>
+  <p>Fale com um consultor da Parcer e receba a proposta oficial Porto no seu WhatsApp.</p>
+  <div class="cta-btns">
+    <a href="https://wa.me/556131426161?text=Olá!%20Fiz%20a%20simulação%20de%20consórcio%20e%20quero%20receber%20uma%20proposta." target="_blank" class="btn-white">
+      <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor"><path d="M16 3C9.372 3 4 8.372 4 15c0 2.386.703 4.605 1.906 6.469L4 29l7.719-1.844A11.9 11.9 0 0016 27c6.628 0 12-5.372 12-12S22.628 3 16 3zm5.406 14.438c-.281-.14-1.75-.86-2.031-.968-.281-.11-.469-.14-.688.14-.219.281-.797.968-.969 1.156-.187.187-.359.219-.64.078-.281-.14-1.234-.453-2.36-1.437-.874-.766-1.469-1.735-1.64-2.016-.172-.281 0-.437.125-.578.125-.125.281-.328.422-.5.14-.172.187-.281.281-.469.094-.187.047-.359-.031-.5-.078-.14-.688-1.594-.938-2.156-.234-.578-.484-.5-.688-.516-.187-.015-.375-.015-.578-.015a1.1 1.1 0 00-.813.375c-.281.281-1.078 1.062-1.078 2.593 0 1.532 1.11 3 1.266 3.219.156.219 2.171 3.406 5.437 4.75.766.328 1.36.531 1.828.671.766.243 1.469.219 2.032.14.62-.093 1.75-.718 2-1.406.25-.688.25-1.281.171-1.406-.078-.11-.281-.187-.562-.328z"/></svg>
+      Falar no WhatsApp
+    </a>
+    <a href="cotar-consorcio.html" class="btn-outline-white">
+      Preencher formulário
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="index.html" style="font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:var(--verde-profundo);">Parcer <span style="color:var(--azul-claro);">Seguros</span></a>
+    <div class="footer-copy">© 2026 Parcer Seguros. Todos os direitos reservados. · Corretora credenciada Porto · Regulada pela SUSEP<br>SCN QD 1, BL C, Ed. Trade Center · Sobreloja 101/102 · Brasília / DF · (61) 3142-6161</div>
+  </div>
+</footer>
+
+<!-- WA FLOAT -->
+<a href="https://wa.me/556131426161?text=Olá!%20Quero%20simular%20um%20consórcio." target="_blank" class="wa-float" aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="currentColor"><path d="M16 3C9.372 3 4 8.372 4 15c0 2.386.703 4.605 1.906 6.469L4 29l7.719-1.844A11.9 11.9 0 0016 27c6.628 0 12-5.372 12-12S22.628 3 16 3zm5.406 14.438c-.281-.14-1.75-.86-2.031-.968-.281-.11-.469-.14-.688.14-.219.281-.797.968-.969 1.156-.187.187-.359.219-.64.078-.281-.14-1.234-.453-2.36-1.437-.874-.766-1.469-1.735-1.64-2.016-.172-.281 0-.437.125-.578.125-.125.281-.328.422-.5.14-.172.187-.281.281-.469.094-.187.047-.359-.031-.5-.078-.14-.688-1.594-.938-2.156-.234-.578-.484-.5-.688-.516-.187-.015-.375-.015-.578-.015a1.1 1.1 0 00-.813.375c-.281.281-1.078 1.062-1.078 2.593 0 1.532 1.11 3 1.266 3.219.156.219 2.171 3.406 5.437 4.75.766.328 1.36.531 1.828.671.766.243 1.469.219 2.032.14.62-.093 1.75-.718 2-1.406.25-.688.25-1.281.171-1.406-.078-.11-.281-.187-.562-.328z"/></svg>
+</a>
+
+<script>
+// ─── DADOS DA PLANILHA (GRUPOS_CAMPANHA_JULHO) ───────────────────────────────
+const GRUPOS = [
+  // IMV - Imóvel
+  { tipo:'IMV', credito:70000,  prazo:200, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:140000, prazo:200, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:280000, prazo:200, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:600000, prazo:200, lanceEmb:30, lanceFix:0,  status:'Em Andamento' },
+  { tipo:'IMV', credito:70000,  prazo:240, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:140000, prazo:240, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:280000, prazo:240, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:600000, prazo:240, lanceEmb:30, lanceFix:40, status:'Em Andamento' },
+  { tipo:'IMV', credito:140000, prazo:200, lanceEmb:30, lanceFix:30, status:'Em Formação' },
+  { tipo:'IMV', credito:600000, prazo:200, lanceEmb:30, lanceFix:30, status:'Em Formação' },
+  { tipo:'IMV', credito:280000, prazo:200, lanceEmb:30, lanceFix:30, status:'Em Formação' },
+  // AUT - Automóvel
+  { tipo:'AUT', credito:25000,  prazo:50,  lanceEmb:15, lanceFix:0,  status:'Em Andamento' },
+  { tipo:'AUT', credito:25000,  prazo:50,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  { tipo:'AUT', credito:34000,  prazo:72,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  { tipo:'AUT', credito:62500,  prazo:80,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  { tipo:'AUT', credito:125000, prazo:90,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  // PES - Caminhão/Pesados
+  { tipo:'PES', credito:180000, prazo:120, lanceEmb:30, lanceFix:30, status:'Em Formação' },
+  // MOTO - usando AUT com crédito menor (não há dados específicos, usamos faixa AUT menor)
+  { tipo:'MOTO', credito:15000, prazo:60,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  { tipo:'MOTO', credito:25000, prazo:72,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+  { tipo:'MOTO', credito:35000, prazo:80,  lanceEmb:30, lanceFix:0,  status:'Em Formação' },
+];
+
+// Taxas de administração por tipo (% total sobre o crédito)
+const TAXA_ADM = { IMV: 0.20, AUT: 0.17, PES: 0.14, MOTO: 0.17 };
+// Fundo de reserva
+const FUNDO_RESERVA = 0.01;
+// Juros médios financiamento ao ano
+const JUROS_FINANC_AA = 0.16;
+
+// Estado atual
+let tipoAtivo = 'IMV';
+let creditoAtivo = null;
+let prazoAtivo = 200;
+
+// Créditos únicos por tipo
+function getCreditosPorTipo(tipo) {
+  const set = new Set();
+  GRUPOS.filter(g => g.tipo === tipo).forEach(g => set.add(g.credito));
+  return Array.from(set).sort((a,b) => a - b);
+}
+
+// Prazo min/max por tipo+credito
+function getPrazos(tipo, credito) {
+  const grupos = GRUPOS.filter(g => g.tipo === tipo && g.credito === credito);
+  if (!grupos.length) return { min: 50, max: 200 };
+  const prazos = grupos.map(g => g.prazo);
+  return { min: Math.min(...prazos), max: Math.max(...prazos) };
+}
+
+// Melhor grupo para tipo+credito+prazo
+function getBestGrupo(tipo, credito, prazo) {
+  const candidatos = GRUPOS.filter(g => g.tipo === tipo && g.credito === credito);
+  if (!candidatos.length) return null;
+  // Pega o grupo com prazo mais próximo
+  return candidatos.reduce((best, g) => {
+    return Math.abs(g.prazo - prazo) < Math.abs(best.prazo - prazo) ? g : best;
+  });
+}
+
+function fmt(val) {
+  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function fmtDec(val) {
+  return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function selectTipo(tipo, el) {
+  tipoAtivo = tipo;
+  document.querySelectorAll('.bem-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  creditoAtivo = null;
+  renderChips();
+  renderResultado();
+}
+
+function renderChips() {
+  const chips = document.getElementById('creditChips');
+  const creditos = getCreditosPorTipo(tipoAtivo);
+  chips.innerHTML = '';
+  creditos.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'credit-chip' + (c === creditoAtivo ? ' active' : '');
+    btn.textContent = fmt(c);
+    btn.onclick = () => selectCredito(c);
+    chips.appendChild(btn);
+  });
+}
+
+function selectCredito(credito) {
+  creditoAtivo = credito;
+  document.querySelectorAll('.credit-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // Ajusta slider
+  const { min, max } = getPrazos(tipoAtivo, credito);
+  const slider = document.getElementById('prazoSlider');
+  slider.min = min; slider.max = max;
+  if (prazoAtivo < min) prazoAtivo = min;
+  if (prazoAtivo > max) prazoAtivo = max;
+  slider.value = prazoAtivo;
+  document.getElementById('prazoDisplay').textContent = prazoAtivo;
+  document.getElementById('prazoMin').textContent = min + ' meses';
+  document.getElementById('prazoMax').textContent = max + ' meses';
+
+  renderResultado();
+}
+
+function onPrazoChange(val) {
+  prazoAtivo = parseInt(val);
+  document.getElementById('prazoDisplay').textContent = prazoAtivo;
+  renderResultado();
+}
+
+function renderResultado() {
+  const grupo = creditoAtivo ? getBestGrupo(tipoAtivo, creditoAtivo, prazoAtivo) : null;
+
+  if (!grupo) {
+    document.getElementById('resultParcela').textContent = '—';
+    document.getElementById('resultSub').textContent = 'Selecione o valor do crédito';
+    document.getElementById('rdCredito').textContent = '—';
+    document.getElementById('rdCustoTotal').textContent = '—';
+    document.getElementById('rdTaxa').textContent = '—';
+    document.getElementById('rdLance').textContent = '—';
+    document.getElementById('compareBox').style.display = 'none';
+    document.getElementById('grupoInfo').querySelector('#grupoInfoText').textContent = 'Selecione um valor de crédito para ver os grupos disponíveis.';
+    return;
+  }
+
+  const taxa = TAXA_ADM[tipoAtivo];
+  const prazo = grupo.prazo;
+  const credito = grupo.credito;
+
+  // Cálculo da parcela:
+  // Parcela = (crédito × (1 + taxa_adm + fundo_reserva)) / prazo
+  const custoTotal = credito * (1 + taxa + FUNDO_RESERVA);
+  const parcela = custoTotal / prazo;
+
+  // Comparativo financiamento (juros compostos mensais)
+  const jurosMes = JUROS_FINANC_AA / 12;
+  const parcelaFinanc = credito * (jurosMes * Math.pow(1 + jurosMes, prazo)) / (Math.pow(1 + jurosMes, prazo) - 1);
+  const custoFinanc = parcelaFinanc * prazo;
+  const economia = custoFinanc - custoTotal;
+
+  // Update UI
+  document.getElementById('resultParcela').textContent = fmtDec(parcela);
+  document.getElementById('resultSub').textContent = `Grupo ${grupo.status.toLowerCase()} · prazo ${prazo} meses`;
+  document.getElementById('rdCredito').textContent = fmt(credito);
+  document.getElementById('rdCustoTotal').textContent = fmt(custoTotal);
+  document.getElementById('rdTaxa').textContent = (taxa * 100).toFixed(1) + '% total';
+  document.getElementById('rdLance').textContent = grupo.lanceEmb > 0 ? grupo.lanceEmb + '% do crédito' : 'Não disponível';
+
+  // Comparativo
+  const compareBox = document.getElementById('compareBox');
+  compareBox.style.display = 'block';
+  document.getElementById('cmpConsorcio').textContent = fmt(custoTotal);
+  document.getElementById('cmpFinanc').textContent = fmt(custoFinanc);
+  document.getElementById('cmpEconomia').textContent = fmt(economia);
+
+  // Info do grupo
+  const lanceInfo = grupo.lanceEmb > 0 ? ` · Lance embutido: ${grupo.lanceEmb}%` : '';
+  const lanceFixInfo = grupo.lanceFix > 0 ? ` · Lance fixo: ${grupo.lanceFix}%` : '';
+  document.getElementById('grupoInfoText').innerHTML = `<strong>Grupo ${grupo.status}</strong> · Prazo real: ${prazo} meses${lanceInfo}${lanceFixInfo} · Regulado pelo Banco Central`;
+
+  // Atualiza link do WhatsApp
+  const nomeTipo = { IMV: 'imóvel', AUT: 'automóvel', PES: 'caminhão/pesados', MOTO: 'moto' }[tipoAtivo];
+  const msg = encodeURIComponent(`Olá! Fiz a simulação de consórcio Porto na Parcer:\n\n• Bem: ${nomeTipo}\n• Crédito: ${fmt(credito)}\n• Prazo: ${prazo} meses\n• Parcela estimada: ${fmtDec(parcela)}/mês\n\nQuero receber a proposta oficial!`);
+  document.getElementById('btnWa').href = `https://wa.me/556131426161?text=${msg}`;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+renderChips();
+renderResultado();
+
+// Header scroll
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// FAQ
+function toggleFaq(el) {
+  el.parentElement.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
